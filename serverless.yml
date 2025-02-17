@@ -1,0 +1,142 @@
+service: PandaDoc-serverless
+frameworkVersion: "3"
+useDotenv: true
+deprecationNotificationMode: error
+disabledDeprecations:
+  - UNSUPPORTED_CLI_OPTIONS
+  - CLI_OPTIONS_SCHEMA_V3
+  - CONFIG_VALIDATION_MODE_DEFAULT_V3
+provider:
+  name: aws
+  runtime: python3.8
+  stage: ${opt:stage, 'dev'}
+  region: ${env:REGION}
+  versionFunctions: false
+  layers:
+    - ${ssm:NODE_LAYER}
+
+  environment:
+    ADMIN_COGNITO_USERPOOL_ID: ${ssm:ADMIN_COGNITO_USERPOOL_ID}
+    ADMIN_COGNITO_CLIENT_ID: ${ssm:ADMIN_COGNITO_CLIENT_ID}
+    BDD_TEST_PASSWORD: ${ssm:BDD_TEST_PASSWORD}
+    BDD_TEST_HASH: ${ssm:BDD_TEST_HASH}
+    REGION: ${env:REGION}
+    AWS_ACCOUNT_ID: ${aws:accountId}
+    STAGE: ${opt:stage, self:provider.stage}
+    RDS_CLUSTER_ARN : ${ssm:RDS_CLUSTER_ARN}
+    RDS_SECRET_ARN : ${ssm:RDS_SECRET_ARN}
+    DATABASE_REGION : ${ssm:DATABASE_REGION}
+    RDS_DATABASE_NAME: ${ssm:RDS_DATABASE_NAME}
+    EVENTS_TABLE: events
+    DEBUG: ${ssm:DEBUG}
+    SECRET_HASH_KEY: ${ssm:SECRET_HASH_KEY}
+    SENDER_EMAIL_ADDRESS: ${ssm:SENDER_EMAIL_ADDRESS}
+    TEMP_FOLDER: /tmp/
+    API_KEY: ${env:PANDADOC_API_KEY}
+    # TARGET_FUNCTION: "${self:service}-${env:STAGE}-autorenewal-async-function"
+
+
+  http:
+    cors: true
+    authorizers:
+      cognito-auth:
+        identitySource: $request.header.Authorization
+        issuerUrl: https://cognito-idp.${env:REGION}.amazonaws.com/${ssm:ADMIN_COGNITO_USERPOOL_ID}
+        audience: ${ssm:ADMIN_COGNITO_CLIENT_ID}
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:*
+            - s3:*
+            - cognito-idp:*
+            - ses:*
+            - sqs:*
+            - mobiletargeting:*
+            - rds-data:*
+            - secretsmanager:*
+          Resource: "*"
+
+package:
+  patterns:
+    - ./lib/**
+    - ./handlers/**
+    - ./data/**
+    - ./entities/**
+    - ./utils/**
+
+functions:
+  view-pandadoc-list-templates:
+    handler: handlers/list_templates.handler
+    runtime: nodejs18.x
+    layers:
+      - ${ssm:NODE_LAYER}
+    events:
+      - http:
+          path: /view-pandadoc-list-templates
+          method: get
+          cors: true
+          authorizer:
+            arn: ${ssm:ADMIN_COGNITO_AUTH_ARN}
+  view-pandadoc-list-docs:
+    handler: handlers/list_docs.handler
+    runtime: nodejs18.x
+    layers:
+      - ${ssm:NODE_LAYER}
+    events:
+      - http:
+          path: /view-pandadoc-list-docs
+          method: get 
+          cors: true
+          authorizer:
+            arn: ${ssm:ADMIN_COGNITO_AUTH_ARN}
+  create-pandadoc-doc:
+    handler: handlers/create_document.handler
+    timeout: 30
+    runtime: nodejs18.x
+    layers:
+      - ${ssm:NODE_LAYER}
+    events:
+      - http:
+          path: /create-pandadoc-doc
+          method: post
+          cors: true
+          authorizer:
+            arn: ${ssm:ADMIN_COGNITO_AUTH_ARN}
+  send-docs-to-email:
+    handler: handlers/send_document.handler
+    runtime: nodejs18.x
+    layers:
+      - ${ssm:NODE_LAYER}
+    events:
+      - http:
+          path: /send-docs-to-email
+          method: get
+          cors: true
+          authorizer:
+            arn: ${ssm:ADMIN_COGNITO_AUTH_ARN}
+
+custom:
+  customDomain:
+    rest:
+      domainName: ${ssm:DOMAIN_NAME}
+      stage: ${opt:stage}
+      basePath: v1/${self:service}
+      certificateName: ${ssm:DOMAIN_CERTIFICATE}
+      createRoute53Record: true
+      securityPolicy: tls_1_2
+      endpointType: regional
+  pythonRequirements:
+    pythonBin: python3
+
+  packageExternal:
+    external:
+      - "../../lib"
+      - "../../entities"
+  
+plugins:
+  - serverless-package-external
+  - serverless-offline
+  - serverless-domain-manager
