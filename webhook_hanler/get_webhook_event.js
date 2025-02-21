@@ -1,3 +1,29 @@
+/*************  ✨ Handler Description ⭐  *************/
+/**
+ * Handle an incoming webhook event from PandaDoc.
+ *
+ * The function expects the event to contain a JSON payload with the following structure:
+ * {
+ *   "event": "recipient_completed",
+ *   "data": {
+ *     "id": <document_id>,
+ *     "name": <document_name>,
+ *     "recipients": [{
+ *       "email": <recipient_email>,
+ *       "first_name": <recipient_first_name>,
+ *       "last_name": <recipient_last_name>
+ *     }],
+ *     "status": <document_status>
+ *   }
+ * }
+ *
+ * If the event is "recipient_completed", the function extracts the relevant information
+ * and logs it to the console. You can add your own business logic here, such as
+ * saving the data to a database or sending a confirmation email.
+ *
+ * @param {Object} event - The incoming webhook event
+ * @returns {Promise<Object>} - A response object with a statusCode and body
+ */
 module.exports.handler = async (event) => {
     console.log('Received event:', JSON.stringify(event, null, 2))
 

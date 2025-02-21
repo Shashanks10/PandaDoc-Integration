@@ -14,6 +14,18 @@ const ADMIN_PREFIXES = ['ADSU', 'ADCP', 'ADSM', 'ADAC', 'ADBZ', 'ADDD', 'DEAL', 
 const fetchUserType = (userId) => (ADMIN_PREFIXES.some((prefix) => userId.startsWith(prefix)) ? 'admin' : 'sales_rep')
 let data
 
+/**********************************************  ✨ Handler Function for Create Document ⭐  *************************************************/
+        /**
+         * This function is designed to create a new document in PandaDoc using a predefined template.
+         * It makes a POST request to the PandaDoc API endpoint /public/v1/documents.
+         * The request body includes details such as the template UUID, recipient information, and tokens (placeholders for dynamic content).
+         * The API key is included in the request headers for authentication.
+         * After creating the document, the function fetches the document status to ensure it was created successfully.
+         * This function is useful for automating document creation workflows.
+         * For this Create Document API we have to pass a payload to fill the fillable parts of the documentation.
+         * @param {Object} event - The event object that triggered the handler.
+         * @returns {Promise<Object>} The HTTP response with a success status and templates data, or an error message in case of failure.
+         */
 module.exports.handler = async (event) => {
     try {
         const templateDetails = {
@@ -147,10 +159,12 @@ module.exports.handler = async (event) => {
             // Calling the PandaDoc API
             try {
                 const response = await createDocumentsFromPandaDoc({ body: JSON.stringify({ data: PayloadForPandaDoc }) })
+                // parsing the response recived from the pandadoc api
                 data = JSON.parse(response.body)
                 const documentId = data.data.id
                 const docsStatus = data.data.status
                 const PandocApiResponse = data.data
+                // if the document is created successfully then only it will call the get-Document-Status
                 try {
                     if (docsStatus === 'document.uploaded') {
                         // calling the get-Document-Status From PandaDoc

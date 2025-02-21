@@ -5,6 +5,15 @@
 const { sendDocumentViaPandaDoc } = require('../helpers/pandaDoc_api_helpers')
 const { returnResponse } = require('../lib/helper')
 
+/*************************************************  ✨ Handler function for Sending Document ⭐  ****************************************************/
+/**
+ * Handler function to send a document from PandaDoc.
+ * This function is triggered by an event and attempts to send a document from PandaDoc.
+ * If successful, it returns a response with a success status and the data from the PandaDoc API.
+ * In case of an error, it returns an internal server 500 status code for the error response.
+ * @param {Object} event - The event object that triggered the handler.
+ * @returns {Promise<Object>} The HTTP response with a success status and data, or an error message in case of failure.
+ */
 module.exports.handler = async (event) => {
     try {
         // get document id from database 

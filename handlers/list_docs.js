@@ -8,6 +8,9 @@
 const { checkPrivilege, fetchUserAttribute, returnResponse } = require('../lib/helper')
 const { listofDocumentsFromPandaDoc } = require('../helpers/pandaDoc_api_helpers')
 
+/****************************************  ✨ Handler function for Listing the Documents from PandaDoc ⭐  ******************************************/
+
+
 /**
  * Handler function to list documents from PandaDoc.
  * This function is triggered by an event, logs the event details,

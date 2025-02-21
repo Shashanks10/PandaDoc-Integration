@@ -8,6 +8,8 @@
 /* eslint-disable import/no-unresolved */
 const axios = require('axios')
 
+/************************************** Creating helper function for Calling the PandaDoc APIs **************************************************/
+
 /**
  * Function to fetch list of all documents from PandaDoc using the PandaDoc API.
  * @returns {Object} - Promise that resolves to an object with a statusCode and body.
@@ -191,6 +193,15 @@ module.exports.getDocumentStatusFromPandaDoc = async (event) => {
     }
 }
 
+/**
+ * Function to send a document via PandaDoc using the PandaDoc API.
+ * @param {Object} event - The event object that triggered the handler.
+ * @returns {Promise<Object>} - Promise that resolves to an object with a statusCode and body.
+ * The body is a JSON object with a message and data property.
+ * The data property contains the data returned by the PandaDoc API.
+ * If there is an error in sending the document, the statusCode is 500,
+ * and the body contains an error property.
+ */
 module.exports.sendDocumentViaPandaDoc = async (event) => {
     const { API_KEY } = process.env // Extract API_KEY from environment
 

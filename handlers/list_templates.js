@@ -8,6 +8,9 @@
 const { checkPrivilege, fetchUserAttribute, returnResponse } = require('../lib/helper')
 const { listofTemplateesFromPandaDoc } = require('../helpers/pandaDoc_api_helpers')
 
+/****************************************  ✨ Handler function for Listing the Templated from PandaDoc ⭐  ******************************************/
+
+
 /**
  * Handler function to list templates from PandaDoc.
  * This function is triggered by an event, logs the event details,
