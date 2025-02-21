@@ -117,6 +117,15 @@ functions:
           cors: true
           authorizer:
             arn: ${ssm:ADMIN_COGNITO_AUTH_ARN}
+  # setting the webhooks event for getting the document status in real time
+  get-webhooks-event:
+    handler: handlers/get_webhook_event.handler
+    runtime: nodejs18.x
+    events:
+      - http:
+          path: /get-webhooks-events
+          method: post
+          cors: true
 
 custom:
   customDomain:
