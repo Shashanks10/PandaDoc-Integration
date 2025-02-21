@@ -8,24 +8,21 @@
 const { checkPrivilege, fetchUserAttribute, returnResponse } = require('../lib/helper')
 const { createDocumentsFromPandaDoc, getDocumentStatusFromPandaDoc } = require('../helpers/pandaDoc_api_helpers')
 const { fetchQuery } = require('../lib/postgres_helper')
-
-const ADMIN_PREFIXES = ['ADSU', 'ADCP', 'ADSM', 'ADAC', 'ADBZ', 'ADDD', 'DEAL', 'DIST']
-
-const fetchUserType = (userId) => (ADMIN_PREFIXES.some((prefix) => userId.startsWith(prefix)) ? 'admin' : 'sales_rep')
 let data
 
 /**********************************************  ✨ Handler Function for Create Document ⭐  *************************************************/
-        /**
-         * This function is designed to create a new document in PandaDoc using a predefined template.
-         * It makes a POST request to the PandaDoc API endpoint /public/v1/documents.
-         * The request body includes details such as the template UUID, recipient information, and tokens (placeholders for dynamic content).
-         * The API key is included in the request headers for authentication.
-         * After creating the document, the function fetches the document status to ensure it was created successfully.
-         * This function is useful for automating document creation workflows.
-         * For this Create Document API we have to pass a payload to fill the fillable parts of the documentation.
-         * @param {Object} event - The event object that triggered the handler.
-         * @returns {Promise<Object>} The HTTP response with a success status and templates data, or an error message in case of failure.
-         */
+
+/**
+ * This function is designed to create a new document in PandaDoc using a predefined template.
+ * It makes a POST request to the PandaDoc API endpoint /public/v1/documents.
+ * The request body includes details such as the template UUID, recipient information, and tokens (placeholders for dynamic content).
+ * The API key is included in the request headers for authentication.
+ * After creating the document, the function fetches the document status to ensure it was created successfully.
+ * This function is useful for automating document creation workflows.
+ * For this Create Document API we have to pass a payload to fill the fillable parts of the documentation.
+ * @param {Object} event - The event object that triggered the handler.
+ * @returns {Promise<Object>} The HTTP response with a success status and templates data, or an error message in case of failure.
+ */
 module.exports.handler = async (event) => {
     try {
         const templateDetails = {
